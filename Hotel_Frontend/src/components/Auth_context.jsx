@@ -1,28 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
+
+const API_BASE = "http://localhost:8000";
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [page, setPage] = useState(token ? "profile" : "login");
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Function to handle user login
+  const authHeader = (authToken = token) => ({
+    headers: { Authorization: `Bearer ${authToken}` },
+  });
+
   const login = async (email, password) => {
     setLoading(true);
-    setError("");
-
     try {
-      const res = await axios.post("http://localhost:8000/token/", {
+      const { data } = await axios.post(`${API_BASE}/token/`, {
         email,
         password,
       });
-
-      const data = res.data;
       setToken(data.access);
       localStorage.setItem("token", data.access);
       setPage("/");
+      await fetchProfile(data.access);
     } catch (err) {
       setError(err.response?.data?.detail || "Login failed");
     } finally {
@@ -30,31 +33,23 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Function to handle user registration
   const register = async (
-    username,
     email,
-    phone ,
+    phone,
     address,
     password,
     confirm_password
   ) => {
     setLoading(true);
-    setError("");
-
     try {
-      await axios.post("http://localhost:8000/register/", {
-        username,
+      await axios.post(`${API_BASE}/register/`, {
         email,
         phone,
         address,
         password,
         confirm_password,
       });
-
-      // After successful registration, redirect to home page
-      setPage("/");
-      setError(""); // Clear any previous errors
+      setPage("login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     } finally {
@@ -62,30 +57,57 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Function to handle user logout
+  const fetchProfile = async (authToken = token) => {
+    if (!authToken) return;
+    try {
+      const { data } = await axios.get(
+        `${API_BASE}/profile/`,
+        authHeader(authToken)
+      );
+      setProfile(data);
+    } catch {
+      setError("Failed to load profile");
+    }
+  };
+
+  const updateProfile = async (updateData) => {
+    if (!token) return;
+    try {
+      const { data } = await axios.put(`${API_BASE}/profile/`, updateData, {
+        ...authHeader(),
+        "Content-Type": "application/json",
+      });
+      setProfile(data);
+      return { success: true };
+    } catch (err) {
+      setError(err.response?.data?.message || "Profile update failed");
+      return { success: false };
+    }
+  };
+
   const logout = () => {
     setToken("");
     localStorage.removeItem("token");
     setPage("/");
-    setError("");
+    setProfile(null);
   };
 
-  // Helper function to navigate to a specific page
-  const goTo = (pageName) => {
-    setPage(pageName);
-    setError(""); // Clear errors when navigating
-  };
+  useEffect(() => {
+    if (token) fetchProfile(token);
+  }, [token]);
 
-  // Provide the authentication context to child components
   return (
     <AuthContext.Provider
       value={{
         token,
+        profile,
         login,
         logout,
         register,
+        updateProfile,
+        fetchProfile,
         page,
-        goTo,
+        goTo: setPage,
         loading,
         error,
         setError,
@@ -95,3 +117,5 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+export const useAuth = () => useContext(AuthContext);

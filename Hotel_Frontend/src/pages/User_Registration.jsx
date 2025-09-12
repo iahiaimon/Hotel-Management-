@@ -39,7 +39,7 @@ export default function User_Registration() {
         confirm_password: formData.confirm_password
       });
       setMessage(res.data.message || "Registered successfully!");
-      navigate("login")
+      navigate("/login")
     } catch (err) {
       if (err.response) {
         setMessage(err.response.data.error || "Something went wrong");

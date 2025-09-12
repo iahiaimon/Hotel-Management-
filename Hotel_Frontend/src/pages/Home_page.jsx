@@ -2,7 +2,7 @@ import React from "react";
 import BlinkingCarousel from "./BlinkingCarousel";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
-import Casousel from "../components/casousel";
+import Carousel from "./Carousel";
 
 // Use it inside Home_page
 export default function Home_page() {
@@ -10,8 +10,6 @@ export default function Home_page() {
     <div>
       <Navbar />
       <BlinkingCarousel />
-
-      <Casousel/>
 
       <div className="flex justify-between items-center container mx-auto">
         <div className=" w-[100%] px-5">
@@ -51,42 +49,7 @@ export default function Home_page() {
             aliquam amet nulla reiciendis libero aspernatur odio ab.
           </p>
         </div>
-
-        <Link to={"details"}>
-          <div className="w-[90%] mx-auto relative cursor-pointer">
-            {/* Image Card */}
-            <div className="overflow-hidden w-[650px] rounded-xl my-10">
-              <img
-                className="rounded-xl hover:scale-110 duration-300 ease-in-out"
-                src="hotel_image_2.webp"
-                alt="hotel_image_2"
-              />
-            </div>
-
-            {/* Details overlay (bottom-left) */}
-            <div className="absolute bottom-0 left-0 bg-white bg-opacity-90 rounded-tr-xl p-6">
-              {/* Price and title */}
-              <div>
-                <h4 className="text-xl font-semibold text-blue-600">
-                  4000 TK Per Night!
-                </h4>
-                <h1 className="text-4xl font-bold text-gray-800">
-                  Family Suite
-                </h1>
-              </div>
-
-              {/* Horizontal specs */}
-              <ul className="flex gap-6 text-gray-600 font-medium mt-2">
-                <li>
-                  80m<sup>2</sup>
-                </li>
-                <li>4 beds</li>
-                <li>2 baths</li>
-                <li>6 guests</li>
-              </ul>
-            </div>
-          </div>
-        </Link>
+        <Carousel />
       </div>
 
       <div className="flex justify-between items-center container mx-auto">
@@ -95,13 +58,23 @@ export default function Home_page() {
           <h1 className="pb-3 text-3xl font-bold font-serif">
             Make Your Stay Memoreable
           </h1>
-          <ul>
-            <li>Airport Transfer</li>
-            <li>Car Parking</li>
-            <li>Free Tea/ Coffee</li>
-            <li>Free WIFI</li>
-            <li>Smart TV</li>
-            <li>Weekly Housekeeping</li>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              "Airport Transfer",
+              "Car Parking",
+              "Free Tea/ Coffee",
+              "Free WIFI",
+              "Smart TV",
+              "Weekly Housekeeping",
+            ].map((facility, index) => (
+              <li
+                key={index}
+                className="flex items-center bg-white shadow-sm rounded-lg p-3 hover:shadow-md transition-shadow"
+              >
+                <span className="w-3 h-3 bg-blue-500 rounded-full mr-3 flex-shrink-0"></span>
+                <span className="text-gray-700 font-medium">{facility}</span>
+              </li>
+            ))}
           </ul>
         </div>
 

@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "accounts",
     "core",
+    "rooms",
 ]
 
 AUTH_USER_MODEL = "accounts.CustomUser"

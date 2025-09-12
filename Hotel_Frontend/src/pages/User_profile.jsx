@@ -1,154 +1,89 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useAuth } from "../hooks/useAuth";
-import Avatar from "../components/Avatar";
+import { useAuth } from "../components/Auth_context.jsx";
 
-function User_profile() {
-  const { token } = useAuth();
-  const [profile, setProfile] = useState(null);
-  const [editUserId, setEditUserId] = useState(null);
-  const [form, setForm] = useState({
-    username: "",
+export default function UserProfile() {
+  const { profile, fetchProfile, updateProfile, loading, error } = useAuth();
+  const [formData, setFormData] = useState({
     email: "",
-    phone : "",
-    address : "",
-    password: "",
-    confirm_password : "",
+    phone: "",
+    address: "",
   });
-  const [message, setMessage] = useState("");
 
+  // Load profile data when component mounts
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/account/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(({ data }) => {
-        console.log("ProfilePage - User profile data:", data);
-        setProfile(data);
-        setForm({
-          username: data?.username || "",
-          email: data?.email || "",
-          password: "",
-        });
-      })
-      .catch((error) => {
-        console.error("Error fetching profile:", error);
+    if (!profile) {
+      fetchProfile();
+    } else {
+      setFormData({
+        email: profile.email || "",
+        phone: profile.phone || "",
+        address: profile.address || "",
       });
-  }, [token]);
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    setMessage("");
-
-    // Only include password if it's provided
-    const updateData = { ...form };
-
-    if (!updateData.password || updateData.password.trim() === "") {
-      delete updateData.password;
     }
+  }, [profile, fetchProfile]);
 
-    try {
-      await axios.put("http://localhost:8000/api/account/", updateData, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setMessage("Profile updated successfully!");
-      setEditUserId(null);
-      // Refresh profile data
-      const { data } = await axios.get("http://localhost:8000/api/account/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProfile(data);
-    } catch (error) {
-      setMessage("Update failed. Please try again.");
-      console.error("Update error:", error);
-    }
-  };
-
+  // Handle input changes
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  if (!profile)
-    return <div className="text-center text-gray-500">Loading...</div>;
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await updateProfile(formData);
+    if (res.success) {
+      alert("Profile updated successfully!");
+    }
+  };
+
+  if (loading && !profile) return <p>Loading profile...</p>;
+  if (error && !profile) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center flex flex-col items-center">
-      <Avatar name={profile.username} />
-      <h2 className="text-2xl font-bold mb-2 mt-4 text-green-600">Profile</h2>
-      {editUserId ? (
-        <form
-          onSubmit={handleUpdate}
-          className="flex flex-col gap-4 w-full mt-2"
-        >
-          <input
-            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-            placeholder="Username"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            readOnly
-          />
-          <input
-            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-            placeholder="Email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-          />
+    <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-xl">
+      <h2 className="text-2xl font-bold mb-4">User Profile</h2>
 
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Email</label>
           <input
-            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-            placeholder="Enter new password (leave blank to keep current)"
-            type="password"
-            name="password"
-            value={form.password}
+            type="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
+            className="w-full p-2 border rounded-lg"
           />
-          <div className="text-xs text-gray-500 -mt-1">
-            Leave password blank to keep your current password
-          </div>
-          <button
-            className="bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition shadow"
-            type="submit"
-          >
-            Save
-          </button>
-          <button
-            className="bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition"
-            type="button"
-            onClick={() => setEditUserId(null)}
-          >
-            Cancel
-          </button>
-        </form>
-      ) : (
-        <div className="w-full flex flex-col items-center mt-4">
-          <div className="mb-2 text-lg font-semibold text-gray-700">
-            {profile.username}
-          </div>
-          <div className="mb-1 text-gray-500">{profile.email}</div>
-          <div className="mb-4 text-sm text-blue-500 capitalize">
-            {profile.role}
-          </div>
-          <button
-            className="bg-yellow-400 text-white py-2 px-6 rounded-lg hover:bg-yellow-500 transition font-semibold shadow mb-2"
-            onClick={() => setEditUserId(profile.id)}
-          >
-            Edit Profile
-          </button>
         </div>
-      )}
-      {message && (
-        <div className="mt-3 text-center text-sm text-green-500">{message}</div>
-      )}
+
+        <div>
+          <label className="block text-sm font-medium">Phone</label>
+          <input
+            type="text"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Address</label>
+          <input
+            type="text"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
+        >
+          Update Profile
+        </button>
+      </form>
     </div>
   );
 }
-
-export default User_profile;

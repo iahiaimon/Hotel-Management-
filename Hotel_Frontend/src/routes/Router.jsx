@@ -3,6 +3,7 @@ import User_Login from "../Pages/User_Login";
 import User_Registration from "../Pages/User_Registration";
 import Home_page from "../pages/Home_page";
 import Detail_page from "../pages/Detail_page";
+import User_profile from "../pages/User_profile";
 
 export const router = createBrowserRouter([
   {
@@ -18,7 +19,11 @@ export const router = createBrowserRouter([
     element: <User_Registration />,
   },
   {
-    path: "/details",
+    path: "/details/:id",
     element: <Detail_page />,
+  },
+  {
+    path: "/profile",
+    element: <User_profile/>,
   },
 ]);
