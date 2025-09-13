@@ -15,7 +15,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <div className="navbar bg-transparent absolute shadow-md z-10 text-white w-[90%] m-auto ">
+    <div className="navbar bg-transparent absolute right-1/2 left-1/2 -translate-x-1/2 shadow-md z-100 text-white w-[90%] m-auto ">
       {/* Left side - Logo */}
       <div className="navbar-start">
         <Link to="/" className="text-xl font-bold text-blue-600">
@@ -106,8 +106,8 @@ export default function Navbar() {
         {/* Desktop Auth Section */}
         <div className="hidden md:flex items-center gap-4 ">
           {isLoggedIn ? (
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-              <Link to="/profile">
+            <Link to="/profile">
+              <div className="btn btn-ghost btn-circle avatar">
                 <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
                   {userData?.username?.charAt(0)?.toUpperCase() || (
                     <svg
@@ -126,8 +126,8 @@ export default function Navbar() {
                     </svg>
                   )}
                 </div>
-              </Link>
-            </label>
+              </div>
+            </Link>
           ) : (
             <div className="flex items-center gap-4">
               <Link

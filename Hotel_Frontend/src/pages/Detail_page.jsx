@@ -14,7 +14,6 @@ export default function DetailPage() {
   const [reviewLoading, setReviewLoading] = useState(true);
 
   const BASE_URL = "http://127.0.0.1:8000"; // replace with your backend
-
   // Fetch room details
   useEffect(() => {
     const fetchRoomDetails = async () => {
@@ -38,7 +37,7 @@ export default function DetailPage() {
       try {
         setReviewLoading(true);
         const res = await axios.get(`${BASE_URL}/rooms/${id}/reviews/`);
-        setReviews(res.data);
+        setReviews(res.data); // update state
         setReviewLoading(false);
       } catch (err) {
         console.error("Error fetching reviews:", err);
@@ -51,37 +50,27 @@ export default function DetailPage() {
   // Submit review
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-
-    // Make sure room id and reviewText exist
     if (!reviewText || !rating) return;
 
-    // Replace with your user's email from auth context or state
-    const email =
-      localStorage.getItem("email") || "anonymous@example.com";
-
-    const newReview = {
-      room: id, // the room id
-      email: email, // use email instead of username
-      rating,
-      text: reviewText,
-    };
-
     try {
+      const token = localStorage.getItem("token"); 
+
       const response = await axios.post(
-        `http://localhost:8000/rooms/${id}/reviews/`,
-        newReview,
+        `${BASE_URL}/rooms/${id}/reviews/`,
         {
-          headers: { "Content-Type": "application/json" },
+          rating,
+          comment: reviewText, 
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
-      // Update frontend dynamically
-      setRoom((prevRoom) => ({
-        ...prevRoom,
-        reviews: [...prevRoom.reviews, response.data],
-      }));
-
-      // Reset form
+      // Add new review to the list
+      setReviews((prev) => [...prev, response.data]);
       setReviewText("");
       setRating(5);
     } catch (err) {
@@ -89,7 +78,7 @@ export default function DetailPage() {
         "Error submitting review:",
         err.response?.data || err.message
       );
-      alert("Failed to submit review. Please try again.");
+      alert("Failed to submit review. Please log in first.");
     }
   };
 
@@ -212,6 +201,12 @@ export default function DetailPage() {
             </button>
           </div>
 
+          <div className="toast toast-end">
+            <div className="alert alert-success">
+              <span>Message sent successfully.</span>
+            </div>
+          </div>
+
           {/* Customer Reviews */}
           <div className="mt-10">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
@@ -230,7 +225,7 @@ export default function DetailPage() {
                   >
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold text-gray-800">
-                        {rev.email}
+                        {rev.user}
                       </h4>
                       <div className="text-yellow-500">
                         {"★".repeat(rev.rating)}

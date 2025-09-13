@@ -1,5 +1,11 @@
-from rest_framework.serializers import ModelSerializer, CharField, ValidationError
-from .models import Room
+from rest_framework.serializers import (
+    ModelSerializer,
+    CharField,
+    ValidationError,
+    StringRelatedField,
+    EmailField,
+)
+from .models import Room, Review
 
 
 class RoomSerializer(ModelSerializer):
@@ -24,19 +30,29 @@ class RoomSerializer(ModelSerializer):
 
 
 class ReviewSerializer(ModelSerializer):
-    user = CharField(source="user.email", read_only=True)
+    # user_email = EmailField(source="user.email", read_only=True)
 
     class Meta:
-        model = Room
+        model = Review
         fields = [
             "id",
+            "room",
+            "user",
             "rating",
             "comment",
             "is_active",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "user", "created_at", "is_active", "updated_at"]
+        # extra_kwargs = {"user": {"write_only": True}}
+        read_only_fields = [
+            "id",
+            "user",
+            "room",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
 
     def validate_rating(self, value):
         if not (1 <= value <= 5):

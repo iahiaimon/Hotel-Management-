@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { AuthContext } from "./AuthContext";
 
-const API_BASE = "http://localhost:8000";
+// Create the context
+const AuthContext = React.createContext();
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
@@ -15,6 +15,7 @@ export function AuthProvider({ children }) {
     headers: { Authorization: `Bearer ${authToken}` },
   });
 
+  // Login Function
   const login = async (email, password) => {
     setLoading(true);
     try {
@@ -33,6 +34,7 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Registration Function
   const register = async (
     email,
     phone,
@@ -57,6 +59,7 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Profile page Function
   const fetchProfile = async (authToken = token) => {
     if (!authToken) return;
     try {
@@ -85,6 +88,7 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Logout Function
   const logout = () => {
     setToken("");
     localStorage.removeItem("token");
@@ -118,4 +122,14 @@ export function AuthProvider({ children }) {
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+// Create the hook - FIXED THIS PART
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
+
+// Add this missing constant
+const API_BASE = "http://localhost:8000";

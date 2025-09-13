@@ -41,7 +41,7 @@ export default function Carousel() {
         watchSlidesProgress={true}
         slidesPerView={1}
         spaceBetween={20}
-        loop={true}
+        // loop={true}
         breakpoints={{
           640: {
             slidesPerView: 1,
