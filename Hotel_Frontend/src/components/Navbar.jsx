@@ -15,7 +15,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <div className="navbar bg-transparent absolute right-1/2 left-1/2 -translate-x-1/2 shadow-md z-100 text-white w-[90%] m-auto ">
+    <div className="navbar bg-black absolute right-1/2 left-1/2 -translate-x-1/2 shadow-md z-100 text-white w-[90%] m-auto h-16 rounded-b-4xl pl-5">
       {/* Left side - Logo */}
       <div className="navbar-start">
         <Link to="/" className="text-xl font-bold text-blue-600">

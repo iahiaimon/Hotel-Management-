@@ -16,6 +16,10 @@ class Room(BaseModel):
     baths = models.IntegerField()
     guests = models.IntegerField()
     description = models.TextField()
+    is_booked = models.BooleanField(default=False)
+    booked_by = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings"
+    )
 
     def __str__(self):
         return f"{self.id} -- {self.title}"

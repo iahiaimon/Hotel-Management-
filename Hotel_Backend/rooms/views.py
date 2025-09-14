@@ -16,6 +16,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
+from rest_framework.decorators import api_view, permission_classes
 
 
 class RoomListView(APIView):
@@ -71,14 +72,27 @@ class RoomDetailView(APIView):
         room.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-        data = request.data.copy()
-        data["room"] = room_id
-        data["user"] = request.user.id
-        serializer = ReviewSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def BookRoom(request, room_id):
+    try:
+        room = Room.objects.get(id=room_id)
+        if room.is_booked:
+            return Response(
+                {"detail": "Room already booked"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        room.is_booked = True
+        room.booked_by = request.user
+        room.save()
+
+        return Response(
+            {"detail": f"Room booked successfully for {request.user.email}"}, status=200
+        )
+
+    except Room.DoesNotExist:
+        return Response({"detail": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ReviewListView(generics.ListCreateAPIView):
@@ -90,6 +104,7 @@ class ReviewListView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, room_id=self.kwargs["room_id"])
+
 
 # class ReviewDetailView(APIView):
 #     permission_classes = [IsAuthenticated]

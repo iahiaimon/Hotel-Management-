@@ -47,19 +47,46 @@ export default function DetailPage() {
     fetchReviews();
   }, [id]);
 
+  const handleBookRoom = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please log in to book a room!");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/rooms/${id}/book/`, // your booking endpoint
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      alert(response.data.detail || "Room booked successfully!");
+      // ✅ Update UI instantly by refreshing the room state
+      setRoom((prev) => ({ ...prev, is_booked: true, booked_by: "you" }));
+    } catch (err) {
+      console.error("Booking error:", err.response?.data || err.message);
+      alert(err.response?.data?.detail || "Failed to book the room.");
+    }
+  };
+
   // Submit review
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (!reviewText || !rating) return;
 
     try {
-      const token = localStorage.getItem("token"); 
+      const token = localStorage.getItem("token");
 
       const response = await axios.post(
         `${BASE_URL}/rooms/${id}/reviews/`,
         {
           rating,
-          comment: reviewText, 
+          comment: reviewText,
         },
         {
           headers: {
@@ -122,7 +149,7 @@ export default function DetailPage() {
           <img
             src={`${BASE_URL}${room.image}`}
             alt={room.name}
-            className="rounded-2xl shadow-lg w-full h-96 object-cover"
+            className="rounded-2xl shadow-lg w-full h-96 object-cover mt-14"
           />
 
           {/* Facilities */}
@@ -170,7 +197,7 @@ export default function DetailPage() {
         </div>
 
         {/* Right - Details and Reviews */}
-        <div className="md:w-1/2 space-y-6">
+        <div className="md:w-1/2 space-y-6 mt-14">
           <div className="">
             <h1 className="text-2xl font-bold ">{room.title}</h1>
           </div>
@@ -196,9 +223,21 @@ export default function DetailPage() {
 
           {/* Booking Buttons */}
           <div className="flex gap-4">
-            <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg text-white font-medium">
-              Book Now
-            </button>
+            {room.is_booked ? (
+              <button
+                disabled
+                className="px-8 py-3 bg-gray-400 rounded-xl shadow-lg text-white font-medium cursor-not-allowed"
+              >
+                Already Booked
+              </button>
+            ) : (
+              <button
+                onClick={handleBookRoom}
+                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg text-white font-medium"
+              >
+                Book Now
+              </button>
+            )}
           </div>
 
           <div className="toast toast-end">

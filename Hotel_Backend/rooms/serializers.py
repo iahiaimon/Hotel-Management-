@@ -22,6 +22,7 @@ class RoomSerializer(ModelSerializer):
             "baths",
             "guests",
             "description",
+            "is_booked",
             "is_active",
             "created_at",
             "updated_at",
