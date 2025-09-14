@@ -3,6 +3,7 @@ import BlinkingCarousel from "./BlinkingCarousel";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 import Carousel from "./Carousel";
+import Footer from "../components/Footer";
 
 // Use it inside Home_page
 export default function Home_page() {
@@ -87,6 +88,8 @@ export default function Home_page() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
