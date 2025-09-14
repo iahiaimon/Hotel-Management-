@@ -1,1 +1,1 @@
-Live Site URL : [link 🔗]( pura-hotel-management.netlify.app)
+Live Site URL : [link 🔗]( https://pura-hotel-management.netlify.app)
